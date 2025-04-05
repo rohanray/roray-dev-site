@@ -27,8 +27,6 @@ var (
 	servers []*Server
 	wlcBox  *tview.Box
 	flex    *tview.Flex
-	statsDC chan *api.BaseStatsReply
-	nc      *nats.Conn
 )
 
 func main() {
@@ -81,8 +79,6 @@ func main() {
 							log.Fatal(err)
 						}
 					}()
-					// select {}
-					// }()
 				})
 			}
 			flex.Clear()
@@ -112,26 +108,4 @@ func GetServers(ch chan []*Server) {
 		log.Fatal(err)
 	}
 	ch <- servers
-}
-
-func SelectServerHandler(ip string) {
-	// _, err := nc.Subscribe("host.stats."+ip, func(msg *nats.Msg) {
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	rcvData := &api.BaseStatsReply{}
-	// 	err = proto.Unmarshal(msg.Data, rcvData)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	statsDC <- rcvData
-	// 	fmt.Println("Received data from NATS: ", rcvData)
-	// 	select {}
-	// })
-	// content = tview.NewFlex().SetDirection(tview.FlexRow).
-	// 	AddItem(tview.NewTextView().SetText("Server IP: "+ip), 0, 1, false).
-	// 	AddItem(tview.NewTextView().SetText("Server Base Stats"), 0, 1, false).
-	// 	AddItem(tview.NewTextView().SetText("CPU: 0%"), 0, 1, false).
-	// 	AddItem(tview.NewTextView().SetText("Memory: 0%"), 0, 1, false).
-	// 	AddItem(tview.NewTextView().SetText("Disk: 0%"), 0, 1, false)
 }
