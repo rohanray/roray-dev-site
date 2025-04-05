@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package api;
+
+import "google/protobuf/empty.proto";
+
+option go_package = ".;api";
+
+message BaseStatsReply {
+  optional double cpu = 1;
+  optional double mem = 2;
+  optional double disk = 3;
+}
+
+service AgentSvc {
+  rpc SendBaseStats(google.protobuf.Empty) returns (BaseStatsReply);
+}
