@@ -44,13 +44,13 @@ The FFM API introduces several key concepts and components that facilitate forei
 
 >Note: _While the primary use case of the Java Foreign Function & Memory (FFM) API is to call C functions from Java (downcalls), it also supports the reverse: calling Java functions from C (upcalls). This is particularly useful for scenarios like C callbacks, where a C library needs to invoke a function provided by Java code._
 
-<br>
-
 By leveraging these components, developers can build high-performance applications that take advantage of native libraries and system resources while maintaining the safety and ease of use that Java provides.
 
 Let's see a small example of effective usage of FFM.
+We will first convert a employees.csv file to a native format and store it as a binary file. We will
 
-
+1. Foreign Memory
+    - 
 
 <br>
 
