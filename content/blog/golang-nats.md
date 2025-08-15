@@ -4,7 +4,10 @@ date = "2025-04-05"
 description = "Sharing my initial learnings using NATS, Golang Channels & Tview."
 
 [taxonomies]
-tags = ["golang", "nats", "tui"]
+tags = ["golang", "nats", "tui", "backend"]
+
+[extra]
+isso = true
 +++
 
 # TL;DR
@@ -98,5 +101,3 @@ __Line 22__ `nc.Publish("host.stats.1", msg)` publishes a single Protobuf serial
 1. Learn advanced concepts in Golang with real-life projects
 2. _(Try to)_ Build a better Golang based open-source alternative to https://uptime.kuma.pet
 3. To pique my interest in terminal user interface (TUI)
-
-### Bonus - Protobuf

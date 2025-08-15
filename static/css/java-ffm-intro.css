@@ -1,0 +1,21 @@
+table {
+    font-size: 0.9em;
+    /* Applies to the entire table */
+}
+
+table th {
+    font-size: 0.9em;
+    /* Specifically for table headers */
+    line-height: normal;
+}
+
+table td {
+    font-size: 0.8em;
+    /* Specifically for table data cells */
+    line-height: normal;
+}
+
+.explanation {
+    line-height: normal;
+    font-size: medium;
+}

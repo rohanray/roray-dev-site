@@ -5,6 +5,9 @@ description = "My first blog post"
 
 [taxonomies]
 tags = ["zola", "cms"]
+
+[extra]
+isso = true
 +++
 
 Why Zola? 
