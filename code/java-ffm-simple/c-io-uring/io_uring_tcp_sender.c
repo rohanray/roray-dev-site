@@ -12,7 +12,7 @@
 
 #define PORT 12345
 #define QUEUE_DEPTH 2
-#define SEND_CHUNK (4 * 1024 * 1024) // 4 MB chunks
+#define SEND_CHUNK (40 * 1024 * 1024) // 40 MB chunks
 
 // Exposed function for FFM
 int send_buffer_io_uring(const char* ip, int port, void* buffer, size_t length) {

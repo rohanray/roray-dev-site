@@ -1,12 +1,18 @@
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.foreign.Arena;
+import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.GroupLayout;
+import java.lang.foreign.Linker;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SequenceLayout;
+import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -29,9 +35,10 @@ public class FfmDemoProducer {
     // private static final VarHandle SHORT_UA_LE_HANDLE =
     // SHORT_UA_LE_LAYOUT.varHandle();
 
-    private static void run(String inputCsvPath, String outputBinPath, int parallel) throws IOException {
+    static void runSource(String inputCsvPath) throws IOException {
+        System.out.println("Starting Source");
+
         Path inPath = Path.of(inputCsvPath);
-        Path out = Path.of(outputBinPath);
 
         try (FileChannel inCh = FileChannel.open(inPath, StandardOpenOption.READ)) {
             List<Long> offsets = new ArrayList<>();
@@ -147,16 +154,16 @@ public class FfmDemoProducer {
                                         .copyFrom(recMemorySegment.asSlice(offsets.get(i), j));
 
                                 // if (i == 0) {
-                                //     System.out.println("Special case for record 1");
-                                //     char fnc = (char) recMemorySegment
-                                //             .asSlice(offsets.get(i), j)
-                                //             .get(BYTE, j - 1);
-                                //     System.out.println("FNC IN: " + fnc);
+                                // System.out.println("Special case for record 1");
+                                // char fnc = (char) recMemorySegment
+                                // .asSlice(offsets.get(i), j)
+                                // .get(BYTE, j - 1);
+                                // System.out.println("FNC IN: " + fnc);
 
-                                //     fnc = (char) outBinSegment
-                                //             .asSlice(((i + 1) * recordLayout.byteSize()) + allNamesLength, j)
-                                //             .get(BYTE, j - 1);
-                                //     System.out.println("FNC OUT: " + fnc);
+                                // fnc = (char) outBinSegment
+                                // .asSlice(((i + 1) * recordLayout.byteSize()) + allNamesLength, j)
+                                // .get(BYTE, j - 1);
+                                // System.out.println("FNC OUT: " + fnc);
 
                                 // }
 
@@ -170,52 +177,101 @@ public class FfmDemoProducer {
 
                     // START : TEST BIN MS reader
                     System.out.println("Reading from binary memory segment:");
-                    long readAllNamesLength = 0;
-                    for (int i = 0; i < totalRecords; i++) {
-                        System.out.println("--- Record " + i + " ---");
-                        MemorySegment currReadMS = outBinSegment
-                                .asSlice((i * recordLayout.byteSize()) + readAllNamesLength, recordLayout);
-                        long _mobile = (long) VH_MOBILE.get(currReadMS, 0L);
-                        System.out.println("Mobile: " + _mobile);
-                        short _age = (short) VH_AGE.get(currReadMS, 0L);
-                        System.out.println("Age: " + _age);
-                        short _name_length = (short) VH_NAME_LENGTH.get(currReadMS, 0L);
-                        System.out.println("Name Length: " + _name_length);
-                        boolean _isExt = (boolean) VH_EXTERNAL.get(currReadMS, 0L);
-                        System.out.println("Is External: " + _isExt);
-                        String name = outBinSegment
-                                .asSlice((i * recordLayout.byteSize()) + readAllNamesLength, _name_length)
-                                .getString(0, StandardCharsets.UTF_8);
-                        System.out.println("Name: " + name);
+                    // long readAllNamesLength = 0;
+                    // for (int i = 0; i < totalRecords; i++) {
+                    // System.out.println("--- Record " + i + " ---");
+                    // MemorySegment currReadMS = outBinSegment
+                    // .asSlice((i * recordLayout.byteSize()) + readAllNamesLength, recordLayout);
+                    // long _mobile = (long) VH_MOBILE.get(currReadMS, 0L);
+                    // System.out.println("Mobile: " + _mobile);
+                    // short _age = (short) VH_AGE.get(currReadMS, 0L);
+                    // System.out.println("Age: " + _age);
+                    // short _name_length = (short) VH_NAME_LENGTH.get(currReadMS, 0L);
+                    // System.out.println("Name Length: " + _name_length);
+                    // boolean _isExt = (boolean) VH_EXTERNAL.get(currReadMS, 0L);
+                    // System.out.println("Is External: " + _isExt);
+                    // String name = outBinSegment
+                    // .asSlice((i * recordLayout.byteSize()) + readAllNamesLength, _name_length)
+                    // .getString(0, StandardCharsets.UTF_8);
+                    // System.out.println("Name: " + name);
 
+                    // if (i == 2) {
+                    // System.out.println("Special case for record 1");
+                    // char fnc = (char) outBinSegment
+                    // .asSlice(((i + 1) * recordLayout.byteSize()) + readAllNamesLength,
+                    // _name_length)
+                    // .get(BYTE, _name_length - 1);
+                    // System.out.println("FNC OUT 1: " + fnc);
+                    // }
 
-                         if (i == 2) {
-                            System.out.println("Special case for record 1");
-                            char fnc = (char) outBinSegment
-                                    .asSlice(((i + 1) * recordLayout.byteSize()) + readAllNamesLength, _name_length)
-                                    .get(BYTE, _name_length-1);
-                            System.out.println("FNC OUT 1: " + fnc);
-                        }
+                    // readAllNamesLength += _name_length;
 
-
-                        readAllNamesLength += _name_length;
-
-                       
-                    }
+                    // }
 
                     // END : TEST BIN MS reader
+
+                    try {
+                        sendBinarySource(outBinSegment);
+                    } catch (Throwable t) {
+                        System.out.println(t.getMessage());
+                    }
                 }
+
             }
         }
 
     }
 
+    static void runSink() {
+        System.out.println("Starting Sink");
+        int port = 22345;
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("TCP Server listening on port " + port);
+            while (true) {
+                try (Socket clientSocket = serverSocket.accept();
+                        InputStream in = clientSocket.getInputStream()) {
+                    System.out.println("Client connected: " + clientSocket.getInetAddress());
+                    byte[] buffer = new byte[8 * 1024]; // 8 KB chunk
+                    int bytesRead;
+                    long totalReceivedBytes = 0L;
+                    while ((bytesRead = in.read(buffer)) != -1) {
+                        System.out.println("Received " + bytesRead + " bytes");
+                        totalReceivedBytes += bytesRead;
+                    }
+                    System.out.println("Client disconnected.");
+                    System.out.println("Total bytes rcvd:" + totalReceivedBytes);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    static void runSinkv2() {
+        System.out.println("Starting Sink");
+        try (Arena arena = Arena.ofShared()) {
+            SymbolLookup lib = SymbolLookup.libraryLookup("./libiouring_tcp.so", arena);
+            MemorySegment funcAddrGlobalInit = lib.find("io_uring_global_init");
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
     public static void main(String[] args) throws Exception {
-        System.out.println(args[0]);
-        int parallelism = (args.length > 2) ? Integer.parseInt(args[2])
-                : Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+        System.out.println("Running in mode: " + args[0]);
         try {
-            run(args[0], args[1], parallelism);
+            switch (args[0]) {
+                case "source" -> {
+                    runSource(args[1]);
+                }
+                case "sink" -> {
+                    runSink();
+                }
+                default -> {
+                    System.out.println("Usage: source / sink");
+                }
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -238,4 +294,40 @@ public class FfmDemoProducer {
         }
         return value;
     }
+
+    static void sendBinarySource(MemorySegment ms) throws Throwable {
+
+        try (Arena arena = Arena.ofShared()) {
+
+            // Load the shared library
+            SymbolLookup lib = SymbolLookup.libraryLookup("./io_uring_tcp_sender.so", arena);
+            MemorySegment funcAddr = lib.find("send_buffer_io_uring").orElseThrow();
+
+            FunctionDescriptor fd = FunctionDescriptor.of(ValueLayout.JAVA_INT,
+                    ValueLayout.ADDRESS, // ip string
+                    ValueLayout.JAVA_INT, // port
+                    ValueLayout.ADDRESS, // buffer
+                    ValueLayout.JAVA_LONG // length
+            );
+
+            // Prepare Method Handle
+
+            Linker linker = Linker.nativeLinker();
+            MethodHandle sendBuffer = linker.downcallHandle(funcAddr, fd);
+
+            // Prepare arguments
+            String ip = "127.0.0.1"; // destination IP
+            int port = 22345; // destination port
+            byte[] ipBytes = ip.getBytes(StandardCharsets.UTF_8);
+            MemorySegment ipStr = arena.allocate(ipBytes.length + 1);
+            ipStr.asSlice(0, ipBytes.length).copyFrom(MemorySegment.ofArray(ipBytes));
+            ipStr.set(ValueLayout.JAVA_BYTE, ipBytes.length, (byte) 0); // Null-terminate for C
+
+            int sent = (int) sendBuffer.invokeExact(ipStr, port, ms, ms.byteSize());
+
+            System.out.println("Bytes sent: " + sent);
+
+        }
+    }
+
 }
