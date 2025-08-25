@@ -44,10 +44,18 @@ The FFM API introduces several key concepts and components that facilitate forei
 
 >Note: _While the primary use case of the Java Foreign Function & Memory (FFM) API is to call C functions from Java (downcalls), it also supports the reverse: calling Java functions from C (upcalls). This is particularly useful for scenarios like C callbacks, where a C library needs to invoke a function provided by Java code._
 
-By leveraging these components, developers can build high-performance applications that take advantage of native libraries and system resources while maintaining the safety and ease of use that Java provides.
+By leveraging these components, developers can build high-performance applications that take advantage of native libraries and system resources while maintaining the safety and ease of use that Java provides especially in below use cases:
+
+- **Performance-Critical Applications**: Applications that require high performance, such as game engines, scientific computing, Ultra Low Level (ULL) High Frequency Trading (HFT) systems and real-time systems, can benefit from direct access to native code and memory.
+- **Big Data and Machine Learning**: Libraries like TensorFlow and PyTorch often require efficient memory management and native code execution, making FFM a suitable choice for integrating these libraries into Java applications.
+- **Interoperability with Other Languages**: FFM allows Java applications to easily call functions written in other languages, such as C or C++, enabling developers to leverage existing libraries and codebases
+- **Low-Level System Access**: Applications that need to interact with low-level system resources, such as hardware devices or operating system APIs, can use FFM to access these resources directly from Java e.g. accessing NIC for Kernel bypass networking, accessing GPU for parallel processing, etc.
+- **High Performance Computing (HPC)**: FFM can be used in HPC applications where performance is critical, such as simulations, numerical computations, and data processing tasks that require efficient memory management and native code execution.
+- **High Performance File/Data I/O**: Database files, large binary files, and other data-intensive applications can benefit by using techniques like memory-mapped files which allow direct access to file contents in memory, random access, bulk read, minimize OS calls, Zero copy & no/low GC pressure by avoiding Heap, multi-process file coordination with locks improving I/O performance and reducing latency.
+- **Custom High Performance Low Latency RPC**: Remote Procedure Calls (RPC) can be optimized using FFM to reduce serialization/deserialization overhead, enabling faster communication with high throughput between distributed systems.
 
 Let's see a small example of effective usage of FFM.
-We will first convert a employees.csv file to a native format and store it as a binary file. We will
+We will first convert a <a href="https://github.com/rohanray/roray-dev-site/blob/main/code/java-ffm-simple/employees.csv" target="_blank" rel="noopener noreferrer" >employees.csv</a> file to a native format and store it as a binary file. We will
 
 1. Foreign Memory
     - 

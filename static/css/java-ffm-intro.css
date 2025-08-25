@@ -1,3 +1,9 @@
+p {
+    font-size: 0.9em;
+    line-height: 1.6rem;
+    ;
+}
+
 table {
     font-size: 0.9em;
     /* Applies to the entire table */
