@@ -10,7 +10,6 @@ public class FfmSender {
 
         System.out.println("FfmSender running...");
         try (Arena arena = Arena.ofShared()) {
-            long currentTimeMillis = System.currentTimeMillis();
             String hi = "ping";
 
             // Load the shared library
