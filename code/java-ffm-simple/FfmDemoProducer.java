@@ -11,15 +11,21 @@ import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FfmDemoProducer {
 
@@ -247,17 +253,149 @@ public class FfmDemoProducer {
         }
     }
 
-    static void runSinkv2() {
-        System.out.println("Starting Sink");
-        try (Arena arena = Arena.ofShared()) {
-            SymbolLookup lib = SymbolLookup.libraryLookup("./libiouring_tcp.so", arena);
-            MemorySegment funcAddrGlobalInit = lib.find("io_uring_global_init");
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
+    static void handleClient(SocketChannel client) {
+        final int BUFFER_SIZE = 8 * 1024; // 8 KB
+
+        try (client; Arena arena = Arena.ofConfined()) {
+            System.out.println("Client connected: " + client.getRemoteAddress());
+
+            // Allocate a reusable off-heap buffer for this client
+            MemorySegment memBuf = arena.allocate(BUFFER_SIZE);
+            ByteBuffer buf = memBuf.asByteBuffer(); // wrap for NIO read/write
+
+//            while (client.read(buf) != -1) {
+//                buf.flip();
+//
+//                // Example: echo back to client
+//                while (buf.hasRemaining()) {
+//                    client.write(buf);
+//                }
+//
+//                // Optionally: print first 64 bytes for debugging
+//                int len = Math.min(64, buf.limit());
+//                byte[] firstBytes = new byte[len];
+//                buf.get(firstBytes, 0, len);
+//                System.out.println("Received: " + new String(firstBytes, StandardCharsets.US_ASCII));
+//
+//                buf.clear(); // reset buffer for next read
+//            }
+
+            System.out.println("Client disconnected: " + client.getRemoteAddress());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    static void startTcpServer(){
+        final int PORT = 22345;
+
+        // START: Modern TCP listener
+        // using NIO & Memory Segment with ByteBuffer as view on the segments
+        // Virtual threads for lightweight multi client connection
+
+        ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory());
+
+        try (ServerSocketChannel serverSocket = ServerSocketChannel.open()) {
+            serverSocket.bind(new InetSocketAddress(PORT));
+            System.out.println("Virtual-thread TCP server listening on port " + PORT);
+
+            while (true) {
+                SocketChannel client = serverSocket.accept(); // blocks until client connects
+//                executor.submit(() -> handleClient(client));
+                Thread.startVirtualThread(() -> handleClient(client));
+            }
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+
+        // END: Modern TCP listener
+
+    }
+
+    static void runSinkv2() throws Throwable {
+        System.out.println("Starting Sink");
+        startTcpServer();
+
+        try (Arena arena = Arena.ofShared()) {
+
+            SymbolLookup lib = SymbolLookup.libraryLookup("./libiouring_tcp.so", arena);
+
+            // Load the shared library: Global Init for Q depth
+            MemorySegment globalInitFuncAddr = lib.find("io_uring_global_init").get();
+            FunctionDescriptor globalInitFd = FunctionDescriptor.of(
+                    ValueLayout.JAVA_INT,
+                    ValueLayout.JAVA_INT
+            );
+
+            // Prepare Method Handle: Global Init for Q depth
+            Linker linker = Linker.nativeLinker();
+            MethodHandle globalInitHandle = linker.downcallHandle(globalInitFuncAddr, globalInitFd);
+            int queueDepth = 2; // Example queue depth
+            int ret = (int) globalInitHandle.invokeExact(queueDepth);
+            System.out.println("Global init returned: " + ret);
+
+            // Load the shared library: TCP Connect
+            MemorySegment tcpConnectFuncAddr = lib.find("io_uring_connect").get();
+            FunctionDescriptor tcpConnectFd = FunctionDescriptor.of(
+                    ValueLayout.JAVA_INT,
+                    ValueLayout.ADDRESS, // ip string
+                    ValueLayout.JAVA_INT // port
+            );
+
+            // Prepare Method Handle: TCP Connect
+            MethodHandle tcpConnectHandle = linker.downcallHandle(tcpConnectFuncAddr, tcpConnectFd);
+            String ip = "127.0.0.1"; // Example IP
+            int port = 22345; // Example port
+            byte[] ipBytes = ip.getBytes(StandardCharsets.UTF_8);
+            MemorySegment ipStr = arena.allocate(ipBytes.length + 1);
+            ipStr.asSlice(0, ipBytes.length).copyFrom(MemorySegment.ofArray(ipBytes));
+            ipStr.set(ValueLayout.JAVA_BYTE, ipBytes.length, (byte) 0); // Null-terminate for C
+            int sockFd = (int) tcpConnectHandle.invokeExact(ipStr, port);
+            System.out.println("TCP Connect returned: " + sockFd);
+            if (sockFd < 0)
+                return;
+
+            // Load the shared library: TCP Receive
+            MemorySegment tcpReceiveFuncAddr = lib.find("io_uring_recv").get();
+            FunctionDescriptor tcpReceiveFd = FunctionDescriptor.of(
+                    ValueLayout.JAVA_INT,
+                    ValueLayout.JAVA_INT,
+                    ValueLayout.ADDRESS,
+                    ValueLayout.JAVA_LONG);
+
+            // Prepare Method Handle: TCP Receive
+            MethodHandle tcpReceiveHandle = linker.downcallHandle(tcpReceiveFuncAddr, tcpReceiveFd);
+            long bufferSize = 8 * 1024 * 1024; // 8 MB buffer
+            MemorySegment recvBuffer  = arena.allocate(bufferSize);
+            recvBuffer.set(BYTE, 0, (byte) 0); // Initialize buffer
+
+            int bytesReceived = (int) tcpReceiveHandle.invokeExact(sockFd, recvBuffer, bufferSize);
+            System.out.println("TCP Receive returned: " + bytesReceived);
+
+            byte[] arr = new byte[bytesReceived];
+            for (int i = 0; i < bytesReceived; i++) {
+                arr[i] = recvBuffer.get(ValueLayout.JAVA_BYTE, i);
+            }
+            System.out.println("Message: " + new String(arr, StandardCharsets.UTF_8));
+
+            // Close socket
+            MethodHandle tcpCloseHandle = linker.downcallHandle(
+                    lib.find("io_uring_close").orElseThrow(),
+                    FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
+            tcpCloseHandle.invokeExact(sockFd);
+
+            // Shutdown ring
+            MethodHandle shutdownHandle = linker.downcallHandle(
+                    lib.find("io_uring_global_shutdown").orElseThrow(),
+                    FunctionDescriptor.ofVoid());
+            shutdownHandle.invokeExact();
+
+        }
+    }
+
+
+    public static void main(String[] args) throws Exception, Throwable {
         System.out.println("Running in mode: " + args[0]);
         try {
             switch (args[0]) {
@@ -265,7 +403,7 @@ public class FfmDemoProducer {
                     runSource(args[1]);
                 }
                 case "sink" -> {
-                    runSink();
+                    runSinkv2();
                 }
                 default -> {
                     System.out.println("Usage: source / sink");
