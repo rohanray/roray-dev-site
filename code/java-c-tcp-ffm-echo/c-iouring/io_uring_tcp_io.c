@@ -213,7 +213,10 @@ int io_uring_send_all(int sockfd, const void *buffer, size_t length)
         p += n;
         remaining -= (size_t)n;
         total += (size_t)n;
+        printf("Sent %d bytes, %zu remaining\n", n, remaining);
+
     }
+    printf("Total bytes sent: %zu\n", total);
     return (int)total;
 }
 
