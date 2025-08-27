@@ -51,8 +51,8 @@ public class FfmSender {
             MethodHandle sendBufMH = linker.downcallHandle(sendBufAddrMS, sendBufFD);
 
             // Prepare buffer
-            MemorySegment sendBuf = arena.allocate(bufferSize);
-            sendBuf.asSlice(0, hi.length()).copyFrom(MemorySegment.ofArray(hi.getBytes(StandardCharsets.UTF_8)));
+            MemorySegment sendBuf = arena.allocateFrom(hi);
+            // sendBuf.asSlice(0, hi.length()).copyFrom(MemorySegment.ofArray(hi.getBytes(StandardCharsets.UTF_8)));
 
             int totalBytesSent = (int)sendBufMH.invokeExact(socketFD, sendBuf, (long)hi.length());
 
