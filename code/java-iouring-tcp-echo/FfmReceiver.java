@@ -20,7 +20,7 @@ public class FfmReceiver {
         try (Arena arena = Arena.ofShared()) {
 
             // Load the shared library
-            SymbolLookup lib = SymbolLookup.libraryLookup("./libiouring_tcpa.so", arena);
+            SymbolLookup lib = SymbolLookup.libraryLookup("./libiouring_tcp.so", arena);
             Linker linker = Linker.nativeLinker();
 
             // 1️⃣ Global io_uring Init

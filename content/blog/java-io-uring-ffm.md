@@ -1,8 +1,7 @@
 +++
 title = "JAVA FFM - Foreign Function & Memory Access API (Project Panama)"
-date = "2025-09-01"
+date = "2025-08-28"
 description = "Sharing my initial learnings using JAVA FFM, Foreign function & memory access."
-draft = true
 
 [taxonomies]
 tags = ["java", "ffm", "backend"]
@@ -219,6 +218,10 @@ invokeExact() enforces exact type matching between Java and C function signature
 
 *Click <a href="#memo-walking-through-ffmreceiver-a-first-taste-of-java-ffm-ai-generated">here</a> to see a more detailed AI generated walk through of FfmReceiver implementation.*
 
+Sample Output:
+
+![alt text](/img/ffmreceiver-output.png)
+
 ### FfmSender
 
 ```java,linenos,FfmSender.java
@@ -287,11 +290,15 @@ public class FfmSender {
 }
 ```
 
+Sample Output:
+
+![alt text](/img/ffmsender-output.png)
+
+This FfmSender class demonstrates sending data to the TCP server using FFM. The flow is similar to FfmReceiver. We send "ping" text to the TCP Server > FfmReceiver.
 
 <br>
 
 # Appendix
-<br>
 
 ### JAVA Versions support
 
