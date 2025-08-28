@@ -14,7 +14,7 @@ isso = true
 
 # TL;DR
 
-Java’s Foreign Function & Memory (FFM) API enables safe, high-performance interaction with native code and memory, improving interoperability with other languages and access to low-level system resources. Working code samples are available on <a href="https://github.com/rohanray/roray-dev-site/tree/main/code/java-ffm" rel="noopener noreferrer" target="_blank">GitHub</a>.
+Java’s Foreign Function & Memory (FFM) API enables safe, high-performance interaction with native code and memory, improving interoperability with other languages and access to low-level system resources. Working code samples are available on <a href="https://github.com/rohanray/roray-dev-site/tree/main/code/java-ffm" rel="noopener" target="_blank">GitHub</a>.
 <br>
 <br>
 
@@ -55,7 +55,7 @@ By leveraging these components, developers can build high-performance applicatio
 - **Custom High Performance Low Latency RPC**: Remote Procedure Calls (RPC) can be optimized using FFM to reduce serialization/deserialization overhead, enabling faster communication with high throughput between distributed systems.
 
 Let's see a small example of effective usage of FFM.
-We will first convert a <a href="https://github.com/rohanray/roray-dev-site/blob/main/code/java-ffm-simple/employees.csv" target="_blank" rel="noopener noreferrer" >employees.csv</a> file to a native format and store it as a binary file. We will
+We will first convert a <a href="https://github.com/rohanray/roray-dev-site/blob/main/code/java-ffm-simple/employees.csv" target="_blank" rel="noopener" >employees.csv</a> file to a native format and store it as a binary file. We will
 
 1. Foreign Memory
     - 

@@ -18,9 +18,9 @@ This site uses [tabi](https://welpo.github.io/tabi/) theme and is hosted on my p
 
 1. Install Zola on your machine depending on your platform <a href="" from [here](https://www.getzola.org/documentation/getting-started/installation/) 
 
-2. Go to tabi-start <a href="https://github.com/welpo/tabi-start" target="_blank" rel="noopener noreferrer">template</a>
+2. Go to tabi-start <a href="https://github.com/welpo/tabi-start" target="_blank" rel="noopener">template</a>
 
-3. Follow along <a href="https://github.com/welpo/tabi-start?tab=readme-ov-file#quick-start" target="_blank" rel="noopener noreferrer">here</a>
+3. Follow along <a href="https://github.com/welpo/tabi-start?tab=readme-ov-file#quick-start" target="_blank" rel="noopener">here</a>
 
 *Check [tabi's documentation](https://welpo.github.io/tabi/) to learn about all features.*
 

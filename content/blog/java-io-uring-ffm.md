@@ -1,7 +1,7 @@
 +++
-title = "JAVA FFM - Foreign Function & Memory Access API (Project Panama)"
+title = "Java FFM - Foreign Function & Memory Access API (Project Panama)"
 date = "2025-08-28"
-description = "Sharing my initial learnings using JAVA FFM, Foreign function & memory access."
+description = "Sharing my initial learnings using Java FFM, Foreign Function & Memory Access."
 
 [taxonomies]
 tags = ["java", "ffm", "backend"]
@@ -13,7 +13,7 @@ isso = true
 
 # TL;DR
 
-Java’s Foreign Function & Memory (FFM) API enables safe, high-performance interaction with native code and memory, improving interoperability with other languages and access to low-level system resources. Working code samples are available on <a href="https://github.com/rohanray/roray-dev-site/tree/main/code/java-ffm" rel="noopener noreferrer" target="_blank">GitHub</a>.
+Java’s Foreign Function & Memory (FFM) API enables safe, high-performance interaction with native code and memory, improving interoperability with other languages and access to low-level system resources. Entire source code available on <a href="https://github.com/rohanray/roray-dev-site/tree/main/code/java-iouring-tcp-echo" rel="noopener" target="_blank">GitHub</a>.
 <br>
 <br>
 
@@ -49,19 +49,19 @@ The FFM API introduces several key concepts and components that facilitate forei
 
 By leveraging these components, developers can build high-performance applications that take advantage of native libraries and system resources while maintaining the safety and ease of use that Java provides especially in below use cases:
 
-- **Performance-Critical Applications**: Applications that require high performance, such as game engines, scientific computing, Ultra Low Level (ULL) High Frequency Trading (HFT) systems and real-time systems, can benefit from direct access to native code and memory.
+- **Performance-Critical Applications**: Applications that require high performance such as game engines, scientific computing, Ultra Low Level (ULL) High Frequency Trading (HFT) systems and real-time systems can benefit from direct access to native code and memory.
 - **Big Data and Machine Learning**: Libraries like TensorFlow and PyTorch often require efficient memory management and native code execution, making FFM a suitable choice for integrating these libraries into Java applications.
 - **Interoperability with Other Languages**: FFM allows Java applications to easily call functions written in other languages, such as C or C++, enabling developers to leverage existing libraries and codebases
 - **Low-Level System Access**: Applications that need to interact with low-level system resources, such as hardware devices or operating system APIs, can use FFM to access these resources directly from Java e.g. accessing NIC for Kernel bypass networking, accessing GPU for parallel processing, etc.
 - **High Performance Computing (HPC)**: FFM can be used in HPC applications where performance is critical, such as simulations, numerical computations, and data processing tasks that require efficient memory management and native code execution.
-- **High Performance File/Data I/O**: Database files, large binary files, and other data-intensive applications can benefit by using techniques like memory-mapped files which allow direct access to file contents in memory, random access, bulk read, minimize OS calls, Zero copy & no/low GC pressure by avoiding Heap, multi-process file coordination with locks improving I/O performance and reducing latency.
+- **High Performance File/Data I/O**: Database files, large binary files, and other data-intensive applications can benefit by using techniques like memory-mapped files which allow direct access to file contents in memory, random access, bulk read, minimize OS calls, Zero copy & low GC pressure by avoiding Heap, multi-process file coordination with locks improving I/O performance and reducing latency.
 - **Custom High Performance Low Latency RPC**: Remote Procedure Calls (RPC) can be optimized using FFM to reduce serialization/deserialization overhead, enabling faster communication with high throughput between distributed systems.
 
 <br>
 
 # Demo Example
 
-Let's see a small example of effective usage of FFM. As a Proof of Concept, we will create a TCP server using <a href="https://developers.redhat.com/articles/2023/04/12/why-you-should-use-iouring-network-io" target="_blank" rel="noopener noreferrer">io_uring</a> (Linux kernel interface for asynchronous I/O operations) and Java FFM API. The actual TCP server using io_uring is implemented in C. We will use various APIs (standard TCP operations) viz. accept, listen, connect, send, receive etc. in Java using Foreign Function.
+Let's see a small example of effective usage of FFM. As a Proof of Concept, we will create a TCP server using <a href="https://developers.redhat.com/articles/2023/04/12/why-you-should-use-iouring-network-io" target="_blank" rel="noopener">io_uring</a> (Linux kernel interface for asynchronous I/O operations) and Java FFM API. The actual TCP server using io_uring is implemented in C. We will use various APIs (standard TCP operations) viz. accept, listen, connect, send, receive etc. in Java through Foreign Functions mapping the actual C functions.
 
 This is by no means a production ready code. The goal is to showcase the ease of use and integration of FFM with existing C libraries. We also won't be going into details of TCP server implementation in C nor what is io_uring as it's beyond the scope of this article.
 
@@ -69,7 +69,7 @@ This is by no means a production ready code. The goal is to showcase the ease of
 
 ## TCP server in C using async io-uring
 
-Let's look at the <a href="https://github.com/rohanray/roray-dev-site/blob/main/code/java-iouring-tcp-echo/c-iouring/io_uring_tcp_io.c" target="_blank" rel="noopener noreferrer">C code</a> first especially the below APIs:
+Let's look at the <a href="https://github.com/rohanray/roray-dev-site/blob/main/code/java-iouring-tcp-echo/c-iouring/io_uring_tcp_io.c" target="_blank" rel="noopener">C code</a> first especially the below APIs:
 
 - `io_uring_global_init` - Initializes the global io_uring context and sets up the underlying ring buffers for asynchronous I/O operations
 - `io_uring_listen` - Creates a TCP socket, binds it to a specified port, and starts listening for incoming connections
@@ -78,13 +78,13 @@ Let's look at the <a href="https://github.com/rohanray/roray-dev-site/blob/main/
 - `io_uring_send` - Sends data through an established TCP connection using io_uring's asynchronous write operations
 - `io_uring_receive` - Receives data from an established TCP connection using io_uring's asynchronous read operations
 
-## JAVA - FFM Integration
+## Java - FFM Integration
 
-Now let's look at the JAVA side which is the point of interest of this article. We have 2 classes:
+Now let's look at the Java side which is the point of interest of this article. We have 2 classes:
 - `FfmReceiver` - Responsible for receiving data from the TCP server
 - `FfmSender` - Responsible for sending data to the TCP server
 
-_Note: **The actual TCP server is implemented in C using io_uring. The C library exposes lifecycle methods for managing the server. These methods are then called in JAVA using FFM.**_
+_Note: **The actual TCP server is implemented in C using io_uring. The C library exposes lifecycle methods for managing the server. These methods are then called in Java using FFM.**_
 
 ### FfmReceiver
 
@@ -100,7 +100,7 @@ import java.nio.charset.StandardCharsets;
 
 public class FfmReceiver {
 
-    private static final ValueLayout.OfByte BYTE = ValueLayout.JAVA_BYTE;
+    private static final ValueLayout.OfByte BYTE = ValueLayout.Java_BYTE;
 
     public static void main(String[] args) throws Throwable {
         int queueDepth = 32;
@@ -117,14 +117,14 @@ public class FfmReceiver {
             // 1️⃣ Global Init
             MemorySegment globalInitAddr = lib.find("io_uring_global_init").get();
             MethodHandle mhGlobalInit = linker.downcallHandle(globalInitAddr,
-                    FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
+                    FunctionDescriptor.of(ValueLayout.Java_INT, ValueLayout.Java_INT));
             int ret = (int) mhGlobalInit.invokeExact(queueDepth);
             System.out.println("io_uring_global_init returned: " + ret);
 
             // 2️⃣ Listen (server socket)
             MemorySegment listenAddr = lib.find("io_uring_listen").get();
             MethodHandle mhListen = linker.downcallHandle(listenAddr,
-                    FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
+                    FunctionDescriptor.of(ValueLayout.Java_INT, ValueLayout.Java_INT, ValueLayout.Java_INT));
             int listenFd = (int) mhListen.invokeExact(port, backlog);
             if (listenFd < 0) {
                 throw new RuntimeException("io_uring_listen failed, fd=" + listenFd);
@@ -134,11 +134,11 @@ public class FfmReceiver {
             // 3️⃣ Accept clients in a loop
             MemorySegment acceptAddr = lib.find("io_uring_accept").get();
             MethodHandle mhAccept = linker.downcallHandle(acceptAddr,
-                    FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
+                    FunctionDescriptor.of(ValueLayout.Java_INT, ValueLayout.Java_INT));
 
             MemorySegment recvAddr = lib.find("io_uring_recv").get();
             MethodHandle mhRecv = linker.downcallHandle(recvAddr,
-                    FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG));
+                    FunctionDescriptor.of(ValueLayout.Java_INT, ValueLayout.Java_INT, ValueLayout.ADDRESS, ValueLayout.Java_LONG));
 
             while (true) {
                 int clientFd = (int) mhAccept.invokeExact(listenFd);
@@ -170,7 +170,7 @@ public class FfmReceiver {
                 // Close client socket
                 MemorySegment closeAddr = lib.find("io_uring_close").get();
                 MethodHandle mhClose = linker.downcallHandle(closeAddr,
-                        FunctionDescriptor.ofVoid(ValueLayout.JAVA_INT));
+                        FunctionDescriptor.ofVoid(ValueLayout.Java_INT));
                 mhClose.invokeExact(clientFd);
                 System.out.println("Client fd " + clientFd + " closed.");
             }
@@ -196,7 +196,7 @@ FFM loads the compiled C shared library containing io_uring functions. SymbolLoo
 - SymbolLookup: This is how Java finds function pointers in a native library. Think of SymbolLookup as a "directory of functions" inside the .so file.
 - Linker: The bridge between Java and native code, which knows how to convert between Java calling conventions and the platform’s native ABI (x86_64 Linux, ARM64, etc.).
 - FunctionDescriptor: Defines the C/native function signature (return type + parameter types)
-- ValueLayout: Maps Java types to native types (JAVA_INT → C int, ADDRESS → C pointer)
+- ValueLayout: Maps Java types to native types (Java_INT → C int, ADDRESS → C pointer)
 - MethodHandle: Type-safe wrapper for C/native function calls
 - MemorySegment: Represents native memory buffers for data exchange; essentially a safe pointer with guardrails.
 
@@ -210,7 +210,7 @@ Here, libraryLookup loads our custom shared library (.so) and lets us find symbo
 
 Then with linker, we can create MethodHandles that behave like normal Java methods but actually invoke C functions. We can think of a MethodHandle as a Java wrapper around a native C function. A linker can be thought of as a translator between Java's JVM world and C's native/binary code. 
 
-Next, we define the function signature with FunctionDescriptor.of(JAVA_INT, JAVA_INT) which includes parameter(input) types & all return types. In this case, the function says it takes one int argument & returns one int as the result. invokeExact(queueDepth) → actually executes the C function.
+Next, we define the function signature with FunctionDescriptor.of(Java_INT, Java_INT) which includes parameter(input) types & all return types. In this case, the function says it takes one int argument & returns one int as the result. invokeExact(queueDepth) → actually executes the C function.
 
 **Safety & Type Checking**
 
@@ -246,8 +246,8 @@ public class FfmSender {
             // Global IO URing Init
             MemorySegment globalInitAddrMS = lib.find("io_uring_global_init").get();
             FunctionDescriptor globalInitFD = FunctionDescriptor.of(
-                    ValueLayout.JAVA_INT,
-                    ValueLayout.JAVA_INT);
+                    ValueLayout.Java_INT,
+                    ValueLayout.Java_INT);
             MethodHandle globalInitMH = linker.downcallHandle(globalInitAddrMS, globalInitFD);
             int ret = (int) globalInitMH.invokeExact(queueDepth);
             System.out.println("io_uring_global_init returned: " + ret);
@@ -255,26 +255,26 @@ public class FfmSender {
             // TCP Open Socket FD
             MemorySegment tcpSocketAddrMS = lib.find("io_uring_connect").get();
             FunctionDescriptor tcpConnectFD = FunctionDescriptor.of(
-                    ValueLayout.JAVA_INT, // return value of socket File Descriptor
+                    ValueLayout.Java_INT, // return value of socket File Descriptor
                     ValueLayout.ADDRESS, // server address
-                    ValueLayout.JAVA_INT); // server port
+                    ValueLayout.Java_INT); // server port
             MethodHandle tcpConnectMH = linker.downcallHandle(tcpSocketAddrMS, tcpConnectFD);
 
             String ip = "127.0.0.1"; // destination IP
             byte[] ipBytes = ip.getBytes(StandardCharsets.UTF_8);
             MemorySegment ipStr = arena.allocate(ipBytes.length + 1);
             ipStr.asSlice(0, ipBytes.length).copyFrom(MemorySegment.ofArray(ipBytes));
-            ipStr.set(ValueLayout.JAVA_BYTE, ipBytes.length, (byte) 0); // Null-terminate for C
+            ipStr.set(ValueLayout.Java_BYTE, ipBytes.length, (byte) 0); // Null-terminate for C
 
             int socketFD = (int) tcpConnectMH.invokeExact(ipStr, port);
 
             // IO URing send data through memory segment off-heap buffer
             MemorySegment sendBufAddrMS = lib.find("io_uring_send_all").get();
             FunctionDescriptor sendBufFD = FunctionDescriptor.of(
-                    ValueLayout.JAVA_INT, // return value: total sent bytes
-                    ValueLayout.JAVA_INT, // socket fd
+                    ValueLayout.Java_INT, // return value: total sent bytes
+                    ValueLayout.Java_INT, // socket fd
                     ValueLayout.ADDRESS, // buffer address
-                    ValueLayout.JAVA_LONG); // buffer length
+                    ValueLayout.Java_LONG); // buffer length
             MethodHandle sendBufMH = linker.downcallHandle(sendBufAddrMS, sendBufFD);
 
             // Prepare buffer
@@ -282,7 +282,7 @@ public class FfmSender {
 
             int totalBytesSent = (int) sendBufMH.invokeExact(socketFD, sendBuf, (long) hi.length());
 
-            System.out.println("Total bytes sent JAVA FFM: " + totalBytesSent);
+            System.out.println("Total bytes sent Java FFM: " + totalBytesSent);
 
         }
 
@@ -300,7 +300,7 @@ This FfmSender class demonstrates sending data to the TCP server using FFM. The 
 
 # Appendix
 
-### JAVA Versions support
+### Java Versions support
 
 |JDK Version|API Status|Enabling Preview Features|Key Enhancements (FFM API versions)|Package|
 |---|---|---|---|---|
@@ -388,8 +388,8 @@ MemorySegment buffer = arena.allocate(bufferSize);
 - Example:
 
 ```java
-byte b = buffer.get(ValueLayout.JAVA_BYTE, offset);
-buffer.set(ValueLayout.JAVA_BYTE, offset, (byte) 42);
+byte b = buffer.get(ValueLayout.Java_BYTE, offset);
+buffer.set(ValueLayout.Java_BYTE, offset, (byte) 42);
 ```
 - Here, we allocate an **8 MB receive buffer** per client.
 - Later, we copy received bytes into a Java `byte[]` for debugging.
@@ -407,7 +407,7 @@ MemorySegment addr = lib.find("io_uring_global_init").get();
 2. **Describe its signature** using `FunctionDescriptor`:
 
 ```java
-FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT)
+FunctionDescriptor.of(ValueLayout.Java_INT, ValueLayout.Java_INT)
 ```
 
 → “returns int, takes an int argument”
@@ -432,15 +432,15 @@ It hides the messy details of JNI — no boilerplate, no unsafe casts.
 
 - `ValueLayout` tells the FFM API how Java types map to C types.
 - Examples:
-    - `JAVA_INT` → C `int32_t`
-    - `JAVA_LONG` → C `int64_t`
-    - `JAVA_BYTE` → C `int8_t`
+    - `Java_INT` → C `int32_t`
+    - `Java_LONG` → C `int64_t`
+    - `Java_BYTE` → C `int8_t`
     - `ADDRESS` → C pointers
 
 So when we say:
 
 ```java
-FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG)
+FunctionDescriptor.of(ValueLayout.Java_INT, ValueLayout.Java_INT, ValueLayout.ADDRESS, ValueLayout.Java_LONG)
 ```
 
 We mean:
