@@ -39,7 +39,7 @@ NATS is a simple, secure and performant communications system and data layer for
 
 To keep things simple for this example, we are using an embedded NATS server which is setup in the central server as below:
 
-```go,linenos,name=server/main.go
+```go,linenos,server/main.go
 opts := &natsServer.Options{
 		Port: 4222,
 	}
@@ -61,7 +61,7 @@ When this line executes, `ns.Start()` runs concurrently with the rest of the pro
 
 Let's look at the agent code
 
-```go,linenos,name=agent/main.go
+```go,linenos,agent/main.go
 func main() {
 	nc, err := nats.Connect("nats://127.0.0.1:4222")
 	if err != nil {

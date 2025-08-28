@@ -20,10 +20,10 @@ public class FfmReceiver {
         try (Arena arena = Arena.ofShared()) {
 
             // Load the shared library
-            SymbolLookup lib = SymbolLookup.libraryLookup("./libiouring_tcp.so", arena);
+            SymbolLookup lib = SymbolLookup.libraryLookup("./libiouring_tcpa.so", arena);
             Linker linker = Linker.nativeLinker();
 
-            // 1️⃣ Global Init
+            // 1️⃣ Global io_uring Init
             MemorySegment globalInitAddr = lib.find("io_uring_global_init").get();
             MethodHandle mhGlobalInit = linker.downcallHandle(globalInitAddr,
                     FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));

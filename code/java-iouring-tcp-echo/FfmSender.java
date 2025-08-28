@@ -34,7 +34,7 @@ public class FfmSender {
             MethodHandle tcpConnectMH = linker.downcallHandle(tcpSocketAddrMS, tcpConnectFD);
 
             String ip = "127.0.0.1"; // destination IP
-            byte[]  ipBytes = ip.getBytes(StandardCharsets.UTF_8);
+            byte[] ipBytes = ip.getBytes(StandardCharsets.UTF_8);
             MemorySegment ipStr = arena.allocate(ipBytes.length + 1);
             ipStr.asSlice(0, ipBytes.length).copyFrom(MemorySegment.ofArray(ipBytes));
             ipStr.set(ValueLayout.JAVA_BYTE, ipBytes.length, (byte) 0); // Null-terminate for C
@@ -52,9 +52,8 @@ public class FfmSender {
 
             // Prepare buffer
             MemorySegment sendBuf = arena.allocateFrom(hi);
-            // sendBuf.asSlice(0, hi.length()).copyFrom(MemorySegment.ofArray(hi.getBytes(StandardCharsets.UTF_8)));
 
-            int totalBytesSent = (int)sendBufMH.invokeExact(socketFD, sendBuf, (long)hi.length());
+            int totalBytesSent = (int) sendBufMH.invokeExact(socketFD, sendBuf, (long) hi.length());
 
             System.out.println("Total bytes sent JAVA FFM: " + totalBytesSent);
 
