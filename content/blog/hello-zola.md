@@ -16,7 +16,7 @@ I did try [Hugo](https://gohugo.io/) and love it! However, I found [Zola](https:
 
 This site uses [tabi](https://welpo.github.io/tabi/) theme and is hosted on my personal VM behind a [Caddy](https://caddyserver.com/) proxy. Here's how you can quickly build yours:
 
-1. Install Zola on your machine depending on your platform <a href="" from [here](https://www.getzola.org/documentation/getting-started/installation/) 
+1. Install Zola on your machine depending on your platform from <a href="https://www.getzola.org/documentation/getting-started/installation/" target="_blank" rel="noopener">here</a>.
 
 2. Go to tabi-start <a href="https://github.com/welpo/tabi-start" target="_blank" rel="noopener">template</a>
 

@@ -89,7 +89,7 @@ stylesheets = []
 # Remote repository for your Zola site.
 # Used for `show_remote_changes` and `show_remote_source` (see below).
 # Supports GitHub, GitLab, Gitea, and Codeberg.
-# remote_repository_url = "https://github.com/welpo/tabi"
+remote_repository_url = "https://github.com/rohanray/roray-dev-site"
 # Set this to "auto" to try and auto-detect the platform based on the repository URL.
 # Accepted values are "github", "gitlab", "gitea", and "codeberg".
 remote_repository_git_platform = "auto"  # Defaults to "auto".
@@ -217,7 +217,7 @@ enable_cards_tag_filtering = true
 invert_title_order = false
 
 # Full path after the base URL required. So if you were to place it in "static" it would be "/favicon.ico"
-# favicon = "favicon.ico"
+favicon = "/favicon.ico"
 
 # Add an emoji here to use it as favicon.
 # Compatibility: https://caniuse.com/link-icon-svg
@@ -255,13 +255,13 @@ encode_plaintext_email = true  # Setting is ignored if email is already encoded.
 # Social media links for the footer.
 # Built-in icons: https://github.com/welpo/tabi/tree/main/static/social_icons
 # To use a custom icon, add it to your site's `static/social_icons` directory.
-# socials = [
-#     { name = "github", url = "https://github.com/welpo/", icon = "github" },
-#     { name = "soundcloud", url = "https://soundcloud.com/oskerwyld", icon = "soundcloud" },
-#     { name = "instagram", url = "https://instagram.com/oskerwyld", icon = "instagram" },
+socials = [
+    { name = "github", url = "https://github.com/rohanray/", icon = "github" },
+    { name = "linkedin", url = "https://www.linkedin.com/in/rohanray1/", icon = "linkedin" },
+    { name = "stack-overflow", url = "https://stackoverflow.com/users/2556796/roray?tab=profile", icon = "stack-overflow" },
 #     { name = "youtube", url = "https://youtube.com/@oskerwyld", icon = "youtube" },
 #     { name = "spotify", url = "https://open.spotify.com/artist/5Hv2bYBhMp1lUHFri06xkE", icon = "spotify" },
-# ]
+]
 
 # Fediverse profile.
 # Adds metadata to feature the author's profile in Mastodon link previews.
@@ -269,12 +269,12 @@ encode_plaintext_email = true  # Setting is ignored if email is already encoded.
 # fediverse_creator = { handle = "username", domain = "example.com" }
 
 # Extra menu to show on the footer, below socials section.
-# footer_menu = [
-#     {url = "about", name = "about", trailing_slash = true},
+footer_menu = [
+    {url = "about", name = "about", trailing_slash = true},
 #     {url = "privacy", name = "privacy", trailing_slash = true},
 #     {url = "sitemap.xml", name = "sitemap", trailing_slash = false},
 #     {url = "https://example.com", name = "external link", trailing_slash = true},
-# ]
+]
 
 # Enable a copyright notice for the footer, shown between socials and the "Powered by" text.
 # $TITLE will be replaced by the website's title.
